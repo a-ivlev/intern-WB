@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Главная страница</title>
+    <link
+      rel="canonical"
+      href="https://getbootstrap.com/docs/5.1/examples/sign-in/"
+    />
+    <!-- Bootstrap core CSS -->
+    <link href="../assets/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <style>
+      .bd-placeholder-img {
+        font-size: 1.125rem;
+        text-anchor: middle;
+        -webkit-user-select: none;
+        -moz-user-select: none;
+        user-select: none;
+      }
+
+      @media (min-width: 768px) {
+        .bd-placeholder-img-lg {
+          font-size: 3.5rem;
+        }
+      }
+
+      body {
+        height: 100%;
+      }
+
+      body {
+        display: flex;
+        align-items: center;
+        padding-top: 40px;
+        padding-bottom: 40px;
+        background-color: #f5f5f5;
+      }
+
+      .form-signin {
+        width: 100%;
+        max-width: 330px;
+        padding: 15px;
+        margin: auto;
+      }
+
+      .form-signin .checkbox {
+        font-weight: 400;
+      }
+
+      .form-signin .form-floating:focus-within {
+        z-index: 2;
+      }
+
+      .form-signin input[type='email'] {
+        margin-bottom: -1px;
+        border-bottom-right-radius: 0;
+        border-bottom-left-radius: 0;
+      }
+
+      .form-signin input[type='password'] {
+        margin-bottom: 10px;
+        border-top-left-radius: 0;
+        border-top-right-radius: 0;
+      }
+    </style>
+  </head>
+
+  <body
+    class="text-center"
+    data-new-gr-c-s-check-loaded="14.1056.0"
+    data-gr-ext-installed=""
+  >
+    <main class="form-signin">
+      <form method="POST" action="postform">
+        <h1 class="h3 mb-3 fw-normal">Please input Order UID</h1>
+
+        <div class="form-floating">
+          <input
+            type="orderUID"
+            name="orderUID"
+            class="form-control"
+            id="floatingOrder"
+            placeholder="Order UID"
+          />
+        </div>
+
+        <button class="w-100 btn btn-lg btn-primary" type="submit">
+          Get order
+        </button>
+      </form>
+    </main>
+
+    {{if ne .OrderUID ""}}
+    <span>
+      <h1>Order UID - {{ .OrderUID }}</h1>
+      <p>OrderUID: {{.OrderUID}}</p>
+      <p>TrackNumber: {{.TrackNumber}}</p>
+      <p>Entry: {{.Entry}}</p>
+      <div>
+        <p><b>Delivery</b></p>
+        <p>Name: {{.Delivery.Name}}</p>
+        <p>Phone: {{.Delivery.Phone}}</p>
+        <p>Zip: {{.Delivery.Zip}}</p>
+        <p>City: {{.Delivery.City}}</p>
+        <p>Address: {{.Delivery.Address}}</p>
+        <p>Region: {{.Delivery.Region}}</p>
+        <p>Email: {{.Delivery.Email}}</p>
+      </div>
+      <div>
+        <p><b>Payment</b></p>
+        <p>Transaction: {{.Payment.Transaction}}</p>
+        <p>RequestID: {{.Payment.RequestID}}</p>
+        <p>Currency: {{.Payment.Currency}}</p>
+        <p>Provider: {{.Payment.Provider}}</p>
+        <p>Amount: {{.Payment.Amount}}</p>
+        <p>PaymentDt: {{.Payment.PaymentDt}}</p>
+        <p>Bank: {{.Payment.Bank}}</p>
+         <p>DeliveryCost: {{.Payment.DeliveryCost}}</p>
+        <p>GoodsTotal: {{.Payment.GoodsTotal}}</p>
+        <p>CustomFee: {{.Payment.CustomFee}}</p>
+      </div>
+      <div>
+        <ul>
+          Items [ {{range .Items}}
+          <ul>
+            <p></p>
+            <li>ChrtID: {{.ChrtID}}</li>
+            <li>TrackNumber: {{.TrackNumber}}</li>
+            <li>Price: {{.Price}}</li>
+            <li>Rid: {{.Rid}}</li>
+            <li>Name: {{.Name}}</li>
+            <li>Sale: {{.Sale}}</li>
+            <li>Size: {{.Size}}</li>
+            <li>TotalPrice: {{.TotalPrice}}</li>
+            <li>NmID: {{.NmID}}</li>
+            <li>Brand: {{.Brand}}</li>
+            <li>Status: {{.Status}}</li>
+            <p></p>
+          </ul>
+          {{end}} ]
+        </ul>
+      </div>
+      <p>Locale: {{.Locale}}</p>
+      <p>InternalSignature: {{.InternalSignature}}</p>
+      <p>CustomerId: {{.CustomerId}}</p>
+      <p>DeliveryService: {{.DeliveryService}}</p>
+      <p>Shardkey: {{.Shardkey}}</p>
+      <p>SmID: {{.SmID}}</p>
+      <p>DateCreated: {{.DateCreated}}</p>
+      <p>OofShard: {{.OofShard}}</p>
+    </span>
+    {{end}}
+  </body>
+</html>
