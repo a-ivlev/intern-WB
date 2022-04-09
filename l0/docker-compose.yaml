@@ -1,0 +1,34 @@
+version: "3.9"
+
+volumes:
+  probe-db:
+
+networks:
+  localnet:
+
+services:
+
+    nats_streaming:
+      container_name: nats
+      image: nats-streaming:alpine3.15
+      ports:
+        - 4222:4222
+        - 8222:8222  
+      restart: always
+      networks:
+        - localnet  
+
+    postgres:
+      container_name: probe-pg
+      image: postgres:14.2
+      ports:
+        - 5432:5432
+      volumes:
+        - probe-db:/var/lib/postgresql/data
+      environment:
+        POSTGRES_USER: admin
+        POSTGRES_PASSWORD: password
+        POSTGRES_DB: probe-db
+      restart: always
+      networks:
+        - localnet
