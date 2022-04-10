@@ -79,31 +79,3 @@ func main() {
 	wg.Wait()
 	fmt.Println("Server stopped")
 }
-
-// func (h *Handler) ListenChannelPurchases(m *stan.Msg) {
-// func ListenChannelPurchases(m *stan.Msg) {
-// 	var order model.Order
-// 	if err := json.Unmarshal(m.Data, &order); err != nil {
-// 		// logrus.Error("cannot parse purchase, drop message")
-// 		return
-// 	}
-// 	fmt.Println("Listen channel order", order)
-
-// 	// if purchase.PurchaseUID != purchase.Payment_.Transaction {
-// 	// 	// log.Error("purchase.PurchaseUID != purchase.Payment_.Transaction, drop message")
-// 	// 	return
-// 	// }
-// 	// // logrus.Debugf("get new purchase from channel %v", purchase)
-// 	// err := h.repository.AddNewPurchase(purchase)
-// 	// if err != nil {
-// 	// 	// log.Errorf("error %s while adding in db, drop message", err.Error())
-// 	// 	return
-// 	// }
-
-// 	// err = h.repository.AddNewPurchaseCache(purchase)
-// 	// if err != nil {
-// 	// 	// log.Error(err.Error())
-// 	// } else {
-// 	// 	// log.Infof("added new purchase to cache with uid %s", purchase.PurchaseUID)
-// 	// }
-// }

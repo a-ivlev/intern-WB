@@ -25,27 +25,15 @@ func NewRouter(st *repository.OrdersRepo) *Router {
 }
 
 func (rt *Router) Home(w http.ResponseWriter, r *http.Request) {
-	// suid := r.URL.Query().Get("uid")
-	// if suid == "" {
-	// 	http.Error(w, "bad request", http.StatusBadRequest)
-	// 	return
-	// }
+
 	tmpl, _ := template.ParseFiles("backend/internal/web/template/home.template.html")
-	// if err != nil {
-	// 	//tmpl.ExecuteTemplate(w, "Home", "template parsing error")
-	// 	log.Println("template parsing error")
-	// }
 
 	suid := r.FormValue("orderUID")
 
 	order, err := rt.store.GetOrder(r.Context(), suid)
 	if err != nil {
 
-		//fmt.Printf("error order uid %s: %s\n", suid, err)
-		//http.Error(w, "error when creating", http.StatusInternalServerError)
-		//return
 	}
 
-	//_ = json.NewEncoder(w).Encode(order)
 	tmpl.Execute(w, order)
 }
