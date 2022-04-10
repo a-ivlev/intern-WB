@@ -32,7 +32,7 @@ func(db *CacheInMemoryDB) CreateOrder(ctx context.Context, order model.Order) (s
 	db.Lock()
 	defer db.Unlock()
 
-		db.m[order.OrderUID] = order
+	db.m[order.OrderUID] = order
 	_, ok := db.m[order.OrderUID]
 	if !ok {
 		return "", sql.ErrConnDone
