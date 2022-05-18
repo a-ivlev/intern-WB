@@ -45,10 +45,11 @@ var options Options
 
 var parser = flags.NewParser(&options, flags.Default)
 
-// grep читает строки построчно и заносит их в слайс, проверяет на совпадение и подсчитывает количество строк.
-// Возвращает два слайса и общее количество прочитанных строк. Первый это полный слайс allInput,
-// в котором находятся все прочитанные строки. Второй слайс resIdx содержит индексы строк, по которым найдены совпадения.
-func grep(f io.ReadCloser, findStr string, options Options) (allInput []string, resIdx []int, count int) {
+// grep читает данные из файла или из STDIN, построчно заносит их в слайс, проверяет на совпадение,
+// подсчитывает количество строк. Возвращает два слайса и общее количество прочитанных строк. Полный слайс allInput,
+// в котором находятся все прочитанные строки. И resIdx слайс индексов строк, по которым найдены совпадения.
+func grep(f io.ReadCloser, findStr string) (allInput []string, resIdx []int, count int) {
+	defer f.Close()
 
 	input := bufio.NewScanner(f)
 	for input.Scan() {
@@ -61,9 +62,7 @@ func grep(f io.ReadCloser, findStr string, options Options) (allInput []string, 
 			line = strings.ToLower(line)
 			findStr = strings.ToLower(findStr)
 		}
-		// Проверяем содержит ли текущая строка искомую подстроку.
 		if strings.Contains(line, findStr) && !options.Fixed {
-			// Если совпадение найдено добавляем индекс строки в res слайс.
 			// res слайс для хранения индексов строк в которых обнаружено совпадение с искомой строкой.
 			resIdx = append(resIdx, count)
 		}
@@ -77,82 +76,29 @@ func grep(f io.ReadCloser, findStr string, options Options) (allInput []string, 
 	return
 }
 
-// printRes с учётом полученных флагов подготавливает результат для вывода в STDOUT.
-func printRes(allInput []string, resIdx []int, options Options) []string {
-	var resStrings []string
-	// Условие выполниться если установлен флаг -v вместо совпадения, исключать.
+func printRes(allInput []string, resIdx []int) {
 	if options.Invert {
 		var j int
-		// Итерируемся по слайсу который содержит все прочитанные строки.
 		for i, elem := range allInput {
 			switch {
-			// Когда установлен флаг -v нам необходимо не выводить строки в которых найдены совпадения.
-			// Когда текущий индекс совпдает со значением из слайса resIdx (хранит индексы строк в которых найдены
-			// совпадения) мы не добавляем это значение в итоговый слайс, и переходим к проверке следующего значения.
-			case i == resIdx[j]:
-				if j < len(resIdx)-1 {
-					j++
-				}
+			case j < len(resIdx) && i == resIdx[j]:
+				j++
 			case options.LineNum:
-				resStrings = append(resStrings, fmt.Sprintf("%d %s", i+1, elem))
-				//fmt.Println(i+1, elem)
+				fmt.Println(i+1, elem)
 			default:
-				resStrings = append(resStrings, elem)
-				//fmt.Println(elem)
+				fmt.Println(elem)
 			}
 		}
-		return resStrings
-	}
-
-	var startIdx, stopIdx int
-	for _, idx := range resIdx {
-		switch {
-		case options.Before > 0:
-			if startIdx < idx-options.Before {
-				startIdx = idx - options.Before
-			}
-			if startIdx < 0 {
-				startIdx = 0
-			}
-			stopIdx = idx
-		case options.After > 0:
-			startIdx = idx
-			if stopIdx < idx+options.After {
-				stopIdx = idx + options.After
-			}
-			if stopIdx > len(allInput)-1 {
-				stopIdx = len(allInput) - 1
-			}
-		case options.Context > 0:
-			startIdx = idx - options.Context
-			if startIdx < 0 {
-				startIdx = 0
-			}
-
-			if stopIdx < idx+options.Context {
-				stopIdx = idx + options.Context
-			}
-			if stopIdx > len(allInput)-1 {
-				stopIdx = len(allInput) - 1
-			}
-		default:
-			startIdx = idx
-			stopIdx = idx
-			//resStrings = append(resStrings, fmt.Sprintf("%s\n", allInput[idx]))
-			//fmt.Println(allInput[idx])
-		}
-		for ; startIdx <= stopIdx; startIdx++ {
-			if options.LineNum {
-				resStrings = append(resStrings, fmt.Sprintf("%d %s", startIdx+1, allInput[startIdx]))
-				//fmt.Println(idx+1, allInput[idx])
-			} else {
-				resStrings = append(resStrings, allInput[startIdx])
-				//fmt.Println(allInput[idx])
+	} else {
+		for _, idx := range resIdx {
+			switch {
+			case options.LineNum:
+				fmt.Println(idx+1, allInput[idx])
+			default:
+				fmt.Println(allInput[idx])
 			}
 		}
 	}
-
-	return resStrings
 }
 
 func main() {
@@ -172,28 +118,27 @@ func main() {
 		}
 	}
 
-	inputFilename := args[0]
-	findStr := args[1]
+	//inputFilename := args[0]
+	//findStr := args[1]
+
+	fmt.Println(args)
+	inputFilename := "input.txt"
+	findStr := "мяч"
 
 	f, err := os.Open(inputFilename)
 	if err != nil {
 		log.Fatal(err)
 	}
-	defer func() {
-		if err = f.Close(); err != nil {
-			log.Fatal(err)
-		}
-	}()
+	defer f.Close()
 
-	allInput, resIdx, count := grep(f, findStr, options)
+	allInput, resIdx, count := grep(f, findStr)
 	fmt.Println(resIdx)
 
-	resSlise := printRes(allInput, resIdx, options)
-	for _, line := range resSlise {
-		fmt.Println(line)
-	}
+	printRes(allInput, resIdx)
 
 	if options.Count {
-		fmt.Println("count read line:", count)
+		fmt.Println("count line:", count)
+
 	}
 }
+

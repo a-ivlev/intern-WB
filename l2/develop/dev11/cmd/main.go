@@ -1,5 +1,18 @@
 package main
 
+import (
+	"context"
+	"fmt"
+	"l2/develop/dev11/internal/api/handlers"
+	"l2/develop/dev11/internal/api/server"
+	"l2/develop/dev11/internal/app/event"
+	"l2/develop/dev11/internal/config"
+	"l2/develop/dev11/internal/store/inMemoryDB"
+	"log"
+	"os"
+	"os/signal"
+)
+
 /*
 === HTTP server ===
 
@@ -23,5 +36,21 @@ package main
 */
 
 func main() {
+	ctx, cancel := signal.NotifyContext(context.Background(), os.Interrupt)
+	defer cancel()
 
+	conf, err := config.LoadConfig("config.sample.yaml")
+	if err != nil {
+		log.Printf("[ WARNING ] load config: %s\n", err)
+	}
+
+	store := inMemoryDB.NewInMemoryDB()
+	eventStore := event.NewStore(store)
+	router := handlers.NewRouter(eventStore)
+
+	srv := server.NewServer(fmt.Sprintf("%s:%s", conf.SrvHost, conf.SrvPort), router)
+	srv.Start()
+
+	<-ctx.Done()
+	srv.Stop()
 }

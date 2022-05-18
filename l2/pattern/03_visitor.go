@@ -1,110 +1,130 @@
 package pattern
 
-// /*
-// 	Реализовать паттерн «посетитель».
-// Объяснить применимость паттерна, его плюсы и минусы, а также реальные примеры использования данного примера на практике.
-// 	https://en.wikipedia.org/wiki/Visitor_pattern
-// */
+import "math"
 
-// // Visitor описывает общий интерфейс для всех типов посетителей. Он объявляет набор методов,
-// // отличающихся типом входящего параметра, которые нужны для запуска операции для всех типов
-// // конкретных элементов.
-// type Visitor interface {
-// 	VisitSushiBar(p *SushiBar) string
-// 	VisitPizzeria(p *Pizzeria) string
-// 	VisitBurgerBar(p *BurgerBar) string
-// }
+/*
+	Реализовать паттерн «посетитель».
+Объяснить применимость паттерна, его плюсы и минусы, а также реальные примеры использования данного примера на практике.
+	https://en.wikipedia.org/wiki/Visitor_pattern
+*/
 
-// // Конкретные посетители реализуют какое-то осбенное поведение для всех типов элементов,
-// // которые можно подать через методы интерфейса посетителя.
-// // People implements the Visitor interface.
-// type ConcreteVisitors struct {
-// }
+/*
+	Посетитель - это поведенческий паттерн проектирования, который позводяет добавлять в программу новые операции,
+	не изменяя классы объектов, над которыми эти операции могут выполняться.
 
-// // VisitSushiBar implements visit to SushiBar.
-// func (v *ConcreteVisitors) VisitSushiBar(p *SushiBar) string {
-// 	return p.BuySushi()
-// }
+	Применяется:
+	1. Когда вам нужно выполнить какую-то операцию над всеми элементами сложной структуры объектов, например, деревом.
+	Посетитель позволяет применять одну и ту же операцию к объектам различный классов.
 
-// // VisitPizzeria implements visit to Pizzeria.
-// func (v *ConcreteVisitors) VisitPizzeria(p *Pizzeria) string {
-// 	return p.BuyPizza()
-// }
+	2. Когда над объектами сложной структуры объектов надо выполнять некоторые не связанные между собой операции,
+		но вы не хотите "засорять" классы такими операциями.
+	Посетитель позволяет извлечь родственные операции из классов, составляющих структуру объектов, поместив их
+	в один класс-посетитель.
 
-// // VisitBurgerBar implements visit to BurgerBar.
-// func (v *ConcreteVisitors) VisitBurgerBar(p *BurgerBar) string {
-// 	return p.BuyBurger()
-// }
+	3. Когда новое поведение имеет смысл только для некоторых классов из существующей иерархии.
+	Посетитель позволяет определить поведение только для этих классов, оставив его пустым для всех остальных.
+*/
 
-// // Клиетном зачастую выступает коллекция или сложный составной объект,
-// // например, дерево Компоновщика. Зачастую клиент не привязан к конкретным
-// // классам элементов, работая с ними через общий интерфейс элементов.
-// type Client struct {
-// 	elements []Element
-// }
+// Shape интерфейс и его реализация, это стороняя библиотека, в которой мы не можем
+// производить какие-либо изменения.
+// Паттерн "Посетитель" позволяет нам реализовать дополнительный функционал, для этого
+// нам достаточно добавить 1 метод accept(v Visitor) к каждой реализации интерфейса Shape.
+type Shape interface {
+	// GetShape один из методов сторонней библиотеки.
+	GetShape() string
+	// accept метод который необходимо добавить, для реализации
+	// паттерна "Посетитель".
+	accept(Visitor)
+}
 
-// // Add appends Place to the collection.
-// func (c *Client) Add(e Element) {
-// 	c.elements = append(c.elements, e)
-// }
+// Реализация интерфейса Shape фигурой "Квадрат".
+type Square struct {
+	Side int64
+}
 
-// // Accept implements a visit to all places in the city.
-// func (c *Client) Accept(v Visitor) string {
-// 	var result string
-// 	for _, p := range c.elements {
-// 		result += p.Accept(v)
-// 	}
-// 	return result
-// }
+func (d *Square) GetShape() string {
+	return "Shape is Square"
+}
 
-// // Элемент описывает метод принятия посетителя. Этот метод должен иметь единственный
-// // параметр, объявленный с типом интерфейса посетителя.
-// type Element interface {
-//	Buy() string
-// 	Accept(v Visitor) string
-// }
+func (d *Square) accept(v Visitor) {
+	v.VisitForSquare(d)
+}
 
-// // Конкретный элемент.
-// // SushiBar implements the Place interface.
-// type SushiBar struct {
-// }
+// Реализация интерфейса Shape фигурой "Круг".
+type Circle struct {
+	Radius int
+}
 
-// // Buy implementation.
-// func (s *SushiBar) Buy() string {
-// 	return "Buy sushi..."
-// }
+func (c *Circle) GetShape() string {
+	return "Shape is Circle"
+}
 
-// // Accept implementation.
-// func (s *SushiBar) Accept(v Visitor) string {
-// 	return v.VisitSushiBar(s)
-// }
+func (c *Circle) accept(v Visitor) {
+	v.VisitForCircle(c)
+}
 
-// // Конкретный элемент.
-// // Pizzeria implements the Place interface.
-// type Pizzeria struct {
-// }
+// Реализация интерфейса Shape фигурой "Прямоугольник".
+type Rectangle struct {
+	SideLeft  int
+	SideRight int
+}
 
-// // Buy implementation.
-// func (p *Pizzeria) Buy() string {
-// 	return "Buy pizza..."
-// }
+func (r *Rectangle) GetShape() string {
+	return "Shape is Rectangle"
+}
 
-// // Accept implementation.
-// func (p *Pizzeria) Accept(v Visitor) string {
-// 	return v.VisitPizzeria(p)
-// }
+func (r *Rectangle) accept(v Visitor) {
+	v.VisitForRectangle(r)
+}
 
-// // Конкретный элемент.
-// // BurgerBar implements the Place interface.
-// type BurgerBar struct {
-// }
+// Visitor описывает общий интерфейс для всех типов посетителей.
+// Он объявляет набор методов, отличающихся типом входящего параметра,
+// которые нужны для запуска операции для всех типов конкретных элементов.
+type Visitor interface {
+	VisitForSquare(*Square)
+	VisitForCircle(*Circle)
+	VisitForRectangle(*Rectangle)
+}
 
-// // Buy implementation.
-// func (b *BurgerBar) Buy() string {
-// 	return "Buy burger..."
-// }
+// Element описывает метод принятия посетителя. Этот метод должен иметь
+// единственный параметр, объявленный с типом интерфейса посетителя.
+type Element interface {
+	accept(v *Visitor)
+}
 
-// // Accept implementation.
-// func (b *BurgerBar) Accept(v Visitor) string {
-// 	return v.VisitBurgerBar(b)
+// Конкретные посетители реализуют какое-то осбенное поведение для всех типов элементов,
+// которые можно подать через методы интерфейса посетителя.
+// В данном примере, считаем площадь фигур.
+type AreaShape struct {
+	area float64
+}
+
+// Конкретные элементы реализуют методы принятия посетителя. Цель этого метода -
+// вызвать тот метод посещения, который соответствует типу этого элемента.
+
+func (a *AreaShape) VisitForSquare(s *Square) {
+	a.area = float64(s.Side * s.Side)
+}
+
+func (a *AreaShape) VisitForCircle(c *Circle) {
+	a.area = math.Pi * float64(c.Radius*c.Radius)
+}
+
+func (a *AreaShape) VisitForRectangle(r *Rectangle) {
+	a.area = float64(r.SideLeft * r.SideRight)
+}
+
+// func main() {
+// 	square := &Square{Side: 3}
+// 	circle := &Circle{Radius: 3}
+// 	rectangle := &Rectangle{SideLeft: 2, SideRight: 3}
+
+// 	areaSh := &AreaShape{}
+
+// 	square.accept(areaSh)
+// 	fmt.Println(areaSh.area)
+// 	circle.accept(areaSh)
+// 	fmt.Println(areaSh.area)
+// 	rectangle.accept(areaSh)
+// 	fmt.Println(areaSh.area)
 // }

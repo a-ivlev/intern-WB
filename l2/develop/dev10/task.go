@@ -1,5 +1,18 @@
 package main
 
+import (
+	"context"
+	"flag"
+	"fmt"
+	"io"
+	"log"
+	"net"
+	"os"
+	"os/signal"
+	"syscall"
+	"time"
+)
+
 /*
 === Утилита telnet ===
 
@@ -16,5 +29,52 @@ go-telnet --timeout=10s host port go-telnet mysite.ru 8080 go-telnet --timeout=3
 */
 
 func main() {
+	var timeOut time.Duration
 
+	flag.DurationVar(&timeOut, "timeout", 10, "таймаут")
+	flag.Parse()
+
+	if len(flag.Args()) < 2 {
+		log.Fatal("Не указан хост и порт для подключения.")
+	}
+
+	host := fmt.Sprintf("%s:%s", flag.Arg(0), flag.Arg(1))
+
+	ctx, cancel := signal.NotifyContext(context.Background(), syscall.SIGINT)
+	defer cancel()
+
+	// Конфигурируем подключение.
+	dialer := net.Dialer{
+		KeepAlive: time.Second * timeOut,
+		Timeout:   time.Second * timeOut,
+	}
+
+	conn, err := dialer.DialContext(ctx, "tcp", host)
+	if err != nil {
+		log.Fatal(err)
+		return
+	}
+	defer conn.Close()
+
+	go func() {
+		defer conn.Close()
+		if _, err := io.Copy(os.Stdout, conn); err != nil {
+			log.Println(err)
+		}
+		// Функция отмены срабатывает при закрытии соединения со стороны сервера.
+		cancel()
+		return
+	}()
+
+	go func() {
+		if _, err := io.Copy(conn, os.Stdin); err != nil {
+			log.Println(err)
+		}
+		// Функция отмены срабатывает при нажатии Ctrl+D
+		cancel()
+	}()
+
+	<-ctx.Done()
+
+	fmt.Printf("%s: exit\n", conn.LocalAddr())
 }

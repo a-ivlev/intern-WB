@@ -1,0 +1,40 @@
+
+POST http://localhost:9000/create_event
+Content-Type: application/x-www-form-urlencoded
+
+user_id=1&date=2019-09-09&description=test user_id 1
+###
+
+POST http://localhost:9000/create_event
+Content-Type: application/x-www-form-urlencoded
+
+user_id=1&date=2019-09-12&description=test user_id 1
+###
+
+GET http://localhost:9000/events_for_day?user_id=1&date=2019-09-09
+Accept: application/json
+
+###
+
+GET http://localhost:9000/events_for_week?user_id=1&date=2019-09-02
+Accept: application/json
+
+###
+
+GET http://localhost:9000/events_for_mount?user_id=1&date=2019-09-02
+Accept: application/json
+
+###
+
+
+POST http://localhost:9000/update_event
+Content-Type: application/x-www-form-urlencoded
+
+id=6c6aa8e7-2ea7-48db-bdf4-c3942b691639&user_id=1&date=2019-10-25&description=test update user_id 1
+###
+
+POST http://localhost:9000/delete_event
+Content-Type: application/x-www-form-urlencoded
+
+id=6c6aa8e7-2ea7-48db-bdf4-c3942b691639&user_id=1&date=2019-10-25&description=test update user_id 1
+###

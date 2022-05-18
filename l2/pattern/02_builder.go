@@ -31,12 +31,14 @@ type Director struct {
 	builder Builder
 }
 
+// NewDirector метод конструктор создаёт нового Director (распорядитель).
 func NewDirector(builder Builder) *Director {
 	return &Director{
 		builder,
 	}
 }
 
+// CreatePage определяет чёткий порядок действий, по которому будет создаваться страница.
 func (d *Director) CreatePage() Page {
 	d.builder.MakeHeader("Header")
 	d.builder.MakeBody("Body")
@@ -53,45 +55,50 @@ type Page struct {
 // ConcreteBuilder1 (конкретный строитель) класс-строитель, который предоставляет фактический код
 // для создания объекта-продукта. У нас может быть несколько разных ConcreteBuilder-классов,
 // каждый из которых реализует различную разновидность или способ создания объекта-Страница.
-type concreteBuilder1 struct {
+type ConcreteBuilder1 struct {
 	page *Page
 }
 
-func NewconcreteBuilder1() *concreteBuilder1 {
-	return &concreteBuilder1{
+// NewconcreteBuilder1 функция конструктор создаёт concreteBuilder1.
+func NewconcreteBuilder1() *ConcreteBuilder1 {
+	return &ConcreteBuilder1{
 		page: &Page{},
 	}
 }
 
-func(cb *concreteBuilder1) MakeHeader(header string) {
+// MakeHeader создаёт шапку страницы.
+func (cb *ConcreteBuilder1) MakeHeader(header string) {
 	var b strings.Builder
 	b.Grow(17 + len(header))
-	b.WriteString("<header>") 
+	b.WriteString("<header>")
 	b.WriteString(header)
-	b.WriteString("</header>") 
+	b.WriteString("</header>")
 	cb.page.Content = b.String()
 }
 
-func(cb *concreteBuilder1) MakeBody(body string) {
+// MakeBody создаёт тело страницы.
+func (cb *ConcreteBuilder1) MakeBody(body string) {
 	var b strings.Builder
 	b.Grow(13 + len(body) + len(cb.page.Content))
 	b.WriteString(cb.page.Content)
-	b.WriteString("<body>") 
+	b.WriteString("<body>")
 	b.WriteString(body)
-	b.WriteString("</body>") 
+	b.WriteString("</body>")
 	cb.page.Content = b.String()
 }
 
-func(cb *concreteBuilder1) MakeFooter(footer string) {
+// MakeFooter создаёт заключительную часть страницы.
+func (cb *ConcreteBuilder1) MakeFooter(footer string) {
 	var b strings.Builder
 	b.Grow(17 + len(footer) + len(cb.page.Content))
 	b.WriteString(cb.page.Content)
-	b.WriteString("<footer>") 
+	b.WriteString("<footer>")
 	b.WriteString(footer)
-	b.WriteString("</footer>") 
+	b.WriteString("</footer>")
 	cb.page.Content = b.String()
 }
 
-func(cb *concreteBuilder1) GetPage() Page {
+// GetPage возвращает готовую страницу.
+func (cb *ConcreteBuilder1) GetPage() Page {
 	return *cb.page
 }
