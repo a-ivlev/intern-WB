@@ -17,7 +17,6 @@ import (
 
 var (
 	ErrBadMetod    = errors.New("bad method")
-	ErrBadRequest  = errors.New("bad request")
 	ErrServer      = errors.New("server error")
 	ErrCreateEvent = errors.New("error when creating")
 	ErrUpdateEvent = errors.New("error when updating")
@@ -26,11 +25,13 @@ var (
 	ErrNotFound    = errors.New("not found")
 )
 
+// Router стандартный роутер.
 type Router struct {
 	*http.ServeMux
 	*event.EventStore
 }
 
+// NewRouter конструктор создаёт роутер и возвращает ссылку на объект.
 func NewRouter(es *event.EventStore) *Router {
 	r := &Router{
 		ServeMux:   http.NewServeMux(),

@@ -18,15 +18,17 @@ import (
 Программа должна проходить все тесты. Код должен проходить проверки go vet и golint.
 */
 
+// HttpDoer необходим для теста.
 type HttpDoer interface {
 	Do(req *http.Request) (*http.Response, error)
 }
 
-// Создаём http клиент. В структуру можно передать таймаут, куки и прочую информацию о запросе.
+// Client создаём http клиент. В структуру можно передать таймаут, куки и прочую информацию о запросе.
 type Client struct {
 	http HttpDoer
 }
 
+// NewClient конструктор, создаёт клиента по умолчанию.
 func NewClient() *Client {
 	return &Client{
 		http: &http.Client{
@@ -35,6 +37,7 @@ func NewClient() *Client {
 	}
 }
 
+// SetHttp в этот метод можно передать любую реализацию интерфейса HttpDoer.
 func (c *Client) SetHttp(doer HttpDoer) *Client {
 	c.http = doer
 	return c

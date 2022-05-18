@@ -10,6 +10,7 @@ import (
 	"github.com/google/go-cmp/cmp"
 )
 
+// MockHttpDoer структура которая реализует метод Do.
 type MockHttpDoer struct {
 	context string
 }
@@ -25,6 +26,7 @@ func (m *MockHttpDoer) Do(req *http.Request) (*http.Response, error) {
 	}, nil
 }
 
+// NewHttpDoerMock конструктор который возвращает ссылку на MockHttpDoer.
 func NewHttpDoerMock(context string) *MockHttpDoer {
 	return &MockHttpDoer{
 		context: context,
