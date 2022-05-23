@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"sync"
 	"time"
 )
 
@@ -44,14 +45,26 @@ func or(channels ...<-chan interface{}) <-chan interface{} {
 	// Создаём главный канал с буфером равным числу переданных каналов.
 	mergedCh := make(chan interface{}, len(channels))
 
+	// Создаём WaitGroup для ожидания завершения работы go-рутин.
+	wg := sync.WaitGroup{}
+	wg.Add(len(channels))
+
 	// Итерируемся по переданным каналам и запускаем go-рутины.
 	for _, channel := range channels {
 		// Количество go-рутин, равно количеству переданных каналов.
-		go func(ch <-chan interface{}) {
-
-			mergedCh <- <-ch
+		go func(chanel <-chan interface{}) {
+			defer wg.Done()
+			for ch := range chanel {
+				mergedCh <- ch
+			}
 		}(channel)
 	}
+
+	// Ждём когда все каналы получат данные и закроются, после этого закрываем канал mergedCh.
+	go func() {
+		wg.Wait()
+		close(mergedCh)
+	}()
 
 	return mergedCh
 }
@@ -68,11 +81,17 @@ func main() {
 
 	start := time.Now()
 	<-or(
-		sig(2*time.Hour),
-		sig(5*time.Minute),
 		sig(1*time.Second),
-		sig(1*time.Hour),
-		sig(1*time.Minute),
+		sig(2*time.Second),
+		sig(3*time.Second),
+		sig(4*time.Second),
+		sig(5*time.Second),
+
+		//sig(2*time.Hour),
+		//sig(5*time.Minute),
+		//sig(1*time.Second),
+		//sig(1*time.Hour),
+		//sig(1*time.Minute),
 	)
 
 	fmt.Printf("done after %v\n", time.Since(start))
